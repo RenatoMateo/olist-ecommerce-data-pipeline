@@ -48,7 +48,7 @@ From raw Kaggle CSVs to a live PostgreSQL database: a complete data engineering 
 
 ## Schema Design
 
-![ER Diagram](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/ERP_Brazil_Ecommerce_Olyst_drawio_1.png)
+![ER Diagram](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/ERP_diagram.png)
 
 The schema follows **3NF (Third Normal Form)**, each piece of information lives in exactly one table, connected to others through primary and foreign keys. No data is repeated, no column depends on anything other than its table's primary key.
 
