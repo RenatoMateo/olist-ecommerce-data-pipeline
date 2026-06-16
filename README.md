@@ -3,10 +3,9 @@
 From raw Kaggle CSVs to a live PostgreSQL database: a complete data engineering pipeline ingesting 99,441 real Brazilian e-commerce orders across 9 relational tables, orchestrated with Apache Airflow, and delivered as a Power BI retail analytics dashboard.
 
 ---
-
 ## Pipeline Architecture
 
-![Architecture Diagram](diagrams/architecture.png)
+![Architecture Diagram](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/Architecture_diagram.png)
 
 | Stage | Tool | What It Does |
 |-------|------|-------------|
@@ -49,7 +48,7 @@ From raw Kaggle CSVs to a live PostgreSQL database: a complete data engineering 
 
 ## Schema Design
 
-![ER Diagram](diagrams/erd_model.png)
+![ER Diagram](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/ERP_Brazil_Ecommerce_Olyst_drawio_1.png)
 
 The schema follows **3NF (Third Normal Form)**, each piece of information lives in exactly one table, connected to others through primary and foreign keys. No data is repeated, no column depends on anything other than its table's primary key.
 
@@ -170,8 +169,9 @@ This confirms the pipeline would handle the test batch cleanly. Replicating the 
 
 ## Orchestration — Airflow DAG
 
-![Airflow DAG](diagrams/airflow_dag.png)
-![Airflow Success Run](diagrams/airflow_success.png)
+![Airflow DAG](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/UI_DAG_olist.JPG)
+
+![Airflow Success](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/Total_Sucess_Airflow.JPG)
 
 The pipeline is orchestrated by an Apache Airflow DAG (`olist_pipeline`) with four tasks running in strict sequential order:
 
@@ -207,9 +207,11 @@ Airflow does not run natively on Windows. The following setup is required:
 
 Power BI connects directly to the PostgreSQL database via the native PostgreSQL connector. The dashboard reads live from the database — no CSV exports or manual refreshes required.
 
-![Overview Tab](diagrams/dashboard_overview.png)
-![Delivery Tab](diagrams/dashboard_delivery.png)
-![Commerce Tab](diagrams/dashboard_commerce.png)
+![Dashboard Overview](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/Dashboard_Tab_One_Overview.JPG)
+
+![Dashboard Delivery](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/Dashboard_Tab_Two_Delivery.JPG)
+
+![Dashboard Commerce](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/Dashboard_Tab_Three_Commerce.JPG)
 
 **Tab 1 — Overview**
 Total orders, total revenue, average review score, total sellers. Orders over time (line chart), orders by state, order status breakdown.
