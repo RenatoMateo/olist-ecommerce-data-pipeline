@@ -25,7 +25,7 @@ From raw Kaggle CSVs to a live PostgreSQL database: a complete data engineering 
 |-------|--------|
 | **Source** | Olist Brazilian E-Commerce Public Dataset |
 | **URL** | kaggle.com/datasets/olistbr/brazilian-ecommerce |
-| **Volume** | ~99,441 orders across 9 interrelated CSV files |
+| **Volume** | 99,441 orders across 9 interrelated CSV files |
 | **Period** | 2016 to 2018 |
 | **Tables** | orders, customers, order_items, products, sellers, payments, reviews, geolocation, category_translation |
 
@@ -75,26 +75,26 @@ The schema follows **3NF (Third Normal Form)**, each piece of information lives 
 
 ### Key Design Decisions
 
-**Composite primary keys** — `order_items` and `payments` use two columns together as the PK. Neither column is unique on its own: one order can contain multiple items, and one order can be paid via multiple methods. The combination is always unique.
+**Composite primary keys**: `order_items` and `payments` use two columns together as the PK. One order can contain multiple items, and one order can be paid via multiple methods. The combination is always unique.
 
-**Geolocation has no primary key** — the same zip code prefix maps to multiple lat/lng coordinate points across different streets and neighborhoods. No single column or combination qualifies as a unique identifier, so no PK was assigned.
+**Geolocation has no primary key**: the same zip code prefix maps to multiple lat/lng coordinate points across different streets and neighborhoods. No single column or combination qualifies as a unique identifier, so no PK was assigned.
 
-**FK load order enforced** — PostgreSQL checks foreign key references at table creation time. Reference tables must exist before transaction tables can be created. This is not optional — the schema creation order encodes the dependency chain of the business itself.
+**FK load order enforced**: PostgreSQL checks foreign key references at table creation time. Reference tables must exist before transaction tables can be created. 
 
 ---
 
-## Data Quality — What We Found and Fixed
+## Data Quality-Transform Data
 
 All cleaning was conducted in Python before any load in PostgreSQL. 
 
 | Table | Issue | Rows Affected | Decision | Reason |
 |-------|-------|--------------|----------|--------|
-| orders | Null delivery dates | 2,965 | **Preserved** | Represent genuinely undelivered orders — valid business state |
+| orders | Null delivery dates | 2,965 | **Preserved** | Represent genuinely undelivered orders |
 | products | Missing category names | 610 | **Filled with 'unknown'** | Category must exist in category_translation for FK constraint |
 | products | Missing physical dimensions | 2 | **Filled with median** | Median avoids skew from extreme product weights |
-| reviews | Missing comment titles | 87,656 | **Filled with 'No title'** | Most customers skip written feedback — expected behavior |
-| reviews | Missing comment messages | 58,247 | **Filled with 'No comment'** | Same reasoning |
-| reviews | Duplicate review_ids | ~400 | **Keep first, drop rest** | Bug in Olist's review submission system — same ID reused |
+| reviews | Missing comment titles | 87,656 | **Filled with 'No title'** | Most customers skip written feedback |
+| reviews | Missing comment messages | 58,247 | **Filled with 'No comment'** | Most customers skip written comments |
+| reviews | Duplicate review_ids | 400 | **Keep first, drop rest** | Bug in Olist's review submission system |
 | category_translation | Missing categories (pc_gamer, market_place, others) | 3 | **Added programmatically** | Products referenced categories not present in translation table |
 
 ### How Missing Categories Were Detected
@@ -214,20 +214,20 @@ Power BI connects directly to the PostgreSQL database via the native PostgreSQL 
 ![Dashboard Commerce](https://raw.githubusercontent.com/RenatoMateo/olist-ecommerce-data-pipeline/main/Dashboard_Tab_Three_Commerce.JPG)
 
 **Tab 1 — Overview**
-Total orders, total revenue, average review score, total sellers. Orders over time (line chart), orders by state, order status breakdown.
+Total orders, total revenue, average review score, and total sellers. Orders over time (line chart), orders by state, and order status breakdown.
 
 **Tab 2 — Delivery Performance**
 On-time vs late deliveries, average delivery days, performance by state and month. Delivery status derived via DAX: `IF(delivered_date <= estimated_date, "On Time", "Late")`.
 
 **Tab 3 — Commerce & Reviews**
-Revenue by product category, top 10 sellers by revenue, review score distribution, average review score.
+Revenue by product category, top 10 sellers by revenue, review score distribution, and average review score.
 
 ### Key Findings
 
 - São Paulo accounts for 40% of all orders — consistent with Brazil's economic geography
 - 97% on-time delivery rate across the full dataset
 - Average customer review score: **4.09 / 5**
-- Review distribution follows a J-curve, with 5-star reviews most common, 1-star is the second most common
+- Review distribution follows a J-curve, with 5-star reviews most common, and 1-star is the second most common
 - Order items always exceed order count — one order can contain multiple products
 - Payments exceed order count — some customers split payments across multiple methods
 
@@ -237,11 +237,10 @@ Revenue by product category, top 10 sellers by revenue, review score distributio
 
 | Challenge | Root Cause | Resolution |
 |-----------|-----------|------------|
-| SSL certificate errors on pip and Kaggle API | University network SSL proxy intercepting HTTPS | Added `--trusted-host` flags to all pip installs |
 | Python 3.14 incompatible with Airflow 2.9.2 | System Python version too new | Created Python 3.11 venv inside WSL |
 | WSL could not reach Windows PostgreSQL | `localhost` in WSL points to Linux, not Windows | Found Windows host IP via `/etc/resolv.conf`, whitelisted WSL subnet in `pg_hba.conf` |
 | FK violations on product load | Products referenced category names missing from category_translation | Programmatically detected and inserted all missing categories before loading |
-| Duplicate review_ids causing PK violations | Bug in Olist's review submission system — same ID reused | `drop_duplicates(subset='review_id', keep='first')` |
+| Duplicate review_ids causing PK violations | Bug in Olist's review submission system with same ID reused | `drop_duplicates(subset='review_id', keep='first')` |
 
 ---
 
@@ -249,9 +248,6 @@ Revenue by product category, top 10 sellers by revenue, review score distributio
 
 ```
 olist-ecommerce-data-pipeline/
-│
-├── Final_Report.docx                  # Full 8-section project report
-│
 ├── data/
 │   ├── raw/                           # Original Kaggle CSVs (unmodified)
 │   ├── dev/                           # 75% development split
