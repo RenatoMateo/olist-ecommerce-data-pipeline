@@ -358,4 +358,4 @@ If prompted for credentials:
 
 **Renato Silva** — Data Reporting Analyst
 
-[LinkedIn](#) | [GitHub](https://github.com/RenatoMateo/olist-ecommerce-data-pipeline) | 
+[LinkedIn](https://www.linkedin.com/in/renato-silva-portilla/) | [GitHub](https://github.com/RenatoMateo/olist-ecommerce-data-pipeline) | 
